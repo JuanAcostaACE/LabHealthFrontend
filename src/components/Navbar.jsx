@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 function Navbar({ seccion, setSeccion }) {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -25,6 +23,11 @@ function Navbar({ seccion, setSeccion }) {
             <li className={`nav-item ${seccion === 'historias' ? 'active' : ''}`}>
               <a className="nav-link" href="#" onClick={(e) => { e.preventDefault(); setSeccion('historias'); }}>
                 Historias Clínicas
+              </a>
+            </li>
+            <li className={`nav-item ${seccion === 'alertas' ? 'active' : ''}`}>
+              <a className="nav-link" href="#" onClick={(e) => { e.preventDefault(); setSeccion('alertas'); }}>
+                Alertas
               </a>
             </li>
           </ul>

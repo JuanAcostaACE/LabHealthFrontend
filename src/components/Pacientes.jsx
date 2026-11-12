@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
+import { cerrarModal } from '../modal.js';
 
 function Pacientes() {
   const [pacientes, setPacientes] = useState([]);
@@ -14,6 +15,8 @@ function Pacientes() {
     antecedentesClinicos: '',
   });
   const [editingId, setEditingId] = useState(null);
+  const [original, setOriginal] = useState({});
+  const [historias, setHistorias] = useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -25,7 +28,7 @@ function Pacientes() {
       const data = await api.getPacientes();
       setPacientes(data);
     } catch (err) {
-      setError('Error al cargar pacientes');
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -40,21 +43,34 @@ function Pacientes() {
     e.preventDefault();
     try {
       if (editingId) {
-        await api.updatePaciente(editingId, form);
+        // PartialType: solo mandamos lo que cambió
+        const cambios = Object.fromEntries(Object.entries(form).filter(([k, v]) => v !== original[k]));
+        if (Object.keys(cambios).length) await api.updatePaciente(editingId, cambios);
         setEditingId(null);
       } else {
         await api.createPaciente(form);
       }
       setForm({ nombre: '', documento: '', telefono: '', email: '', fechaNacimiento: '', tipoSangre: '', antecedentesClinicos: '' });
+      cerrarModal('modalPaciente');
       await cargarPacientes();
     } catch (err) {
-      setError('Error al guardar paciente');
+      setError(err.message);
     }
   };
 
   const editar = (p) => {
+    const campos = Object.fromEntries(Object.keys(form).map(k => [k, p[k] ?? '']));
     setEditingId(p.id);
-    setForm({ ...p });
+    setForm(campos);
+    setOriginal(campos);
+  };
+
+  const verHistorias = async (p) => {
+    try {
+      setHistorias({ nombre: p.nombre, items: await api.getHistoriasDePaciente(p.id) });
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const eliminar = async (id) => {
@@ -63,7 +79,7 @@ function Pacientes() {
       await api.deletePaciente(id);
       await cargarPacientes();
     } catch (err) {
-      setError('Error al eliminar paciente');
+      setError(err.message);
     }
   };
 
@@ -106,7 +122,8 @@ function Pacientes() {
                   <td>{p.fechaNacimiento}</td>
                   <td>{p.tipoSangre}</td>
                   <td>
-                    <button className="btn btn-sm btn-outline-primary" onClick={() => editar(p)}>Editar</button>
+                    <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => verHistorias(p)}>Historias</button>
+                    <button className="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#modalPaciente" onClick={() => editar(p)}>Editar</button>
                     <button className="btn btn-sm btn-danger" onClick={() => eliminar(p.id)}>Eliminar</button>
                   </td>
                 </tr>
@@ -115,6 +132,26 @@ function Pacientes() {
           </tbody>
         </table>
       </div>
+
+      {historias && (
+        <div className="card mb-4">
+          <div className="card-header d-flex justify-content-between align-items-center">
+            <span>Historias clínicas de {historias.nombre}</span>
+            <button type="button" className="btn-close" onClick={() => setHistorias(null)}></button>
+          </div>
+          <ul className="list-group list-group-flush">
+            {historias.items.length === 0 ? (
+              <li className="list-group-item">Este paciente no tiene historias clínicas</li>
+            ) : (
+              historias.items.map(h => (
+                <li key={h.id} className="list-group-item">
+                  <strong>#{h.id}</strong> · {h.fecha} · {h.diagnostico}
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
+      )}
 
       <div className="modal fade" id="modalPaciente" tabIndex="-1" aria-hidden="true">
         <div className="modal-dialog">
