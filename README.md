@@ -1,13 +1,15 @@
 # LabHealt Frontend
 
-Frontend de **LabHealt** (React + Vite) para la API de NestJS del repo
-[LabHealt](https://github.com/JuanAcostaACE/LabHealt). Sin router ni librería de estado:
-`App.jsx` guarda la sección activa y la navbar la cambia. Bootstrap 5.3 entra por CDN
-en `index.html`.
+Interfaz web de **LabHealt**, construida con React 18 + Vite. Consume la API REST de
+NestJS del repo [LabHealt](https://github.com/JuanAcostaACE/LabHealt) para administrar
+pacientes, doctores, historias clínicas y alertas de anormalidad.
+
+La navegación es por estado, sin router: `App.jsx` guarda la sección activa y la navbar
+la cambia. Los estilos son de Bootstrap 5.3, cargado por CDN en `index.html`.
 
 ## Requisitos
 
-- Node 18+
+- Node 18 o superior
 - La API corriendo (por defecto en `http://localhost:3000`)
 
 ## Instalación y ejecución
@@ -17,7 +19,7 @@ npm install
 cp .env.example .env   # opcional, por defecto apunta a http://localhost:3000
 npm run dev            # http://localhost:5173
 npm run build          # compila a ../dist/frontend
-npm run preview
+npm run preview        # sirve el build
 ```
 
 ## Configuración
@@ -26,15 +28,14 @@ npm run preview
 |---|---|---|
 | `VITE_API_URL` | `http://localhost:3000` | URL base de la API |
 
-La API habilita CORS (`app.enableCors()`), así que el front le pega directo; no hay proxy.
-
 ## Estructura
 
 ```
 src/
+  main.jsx                   punto de entrada
   App.jsx                    sección activa (pacientes | doctores | historias | alertas)
-  modal.js                   cierra un modal de Bootstrap después de guardar
-  services/api.js            toda la comunicación con la API
+  modal.js                   cierre de modales de Bootstrap
+  services/api.js            cliente de la API
   components/
     Navbar.jsx
     Pacientes.jsx
@@ -43,30 +44,29 @@ src/
     Alertas.jsx
 ```
 
-## Qué hace cada sección
+## Secciones
 
-| Sección | Qué permite |
-|---|---|
-| **Pacientes** | CRUD + botón *Historias* (`GET /pacientes/:id/historias`) |
-| **Doctores** | CRUD + botón *Historias* (`GET /doctores/:id/historias`) |
-| **Historias Clínicas** | CRUD + botón *Alertas* (`GET /historias-clinicas/:id/alertas`) y alta de alertas de esa historia |
-| **Alertas** | Lista y elimina alertas. **No se crean desde aquí**: `CreateAlertaDto` exige `historiaId`, así que se crean desde la historia |
+| Sección | Qué muestra | Endpoints que usa |
+|---|---|---|
+| **Pacientes** | Tabla con alta, edición y baja; botón *Historias* por fila | `/pacientes`, `/pacientes/:id/historias` |
+| **Doctores** | Tabla con alta, edición y baja; botón *Historias* por fila | `/doctores`, `/doctores/:id/historias` |
+| **Historias Clínicas** | Tabla con el nombre del paciente y del doctor; botón *Alertas* por fila con el alta de alertas de esa historia | `/historias-clinicas`, `/historias-clinicas/:id/alertas`, `/alerta-anormalidad` |
+| **Alertas** | Tabla de todas las alertas con su nivel y la historia a la que pertenecen | `/alerta-anormalidad` |
 
-## `services/api.js`
+Las alertas se crean desde la historia clínica, porque la API las pide con el
+`historiaId` al que pertenecen.
 
-Un solo punto de entrada por método. Dos cosas que vale la pena saber:
+## Cliente de la API (`services/api.js`)
 
-- **Errores:** cada respuesta pasa por `leer(r)`, que revisa `r.ok` y lanza el `message`
-  de Nest (que puede ser `string` o `string[]`). Los componentes muestran `err.message`,
-  así que un 400 de validación se ve en pantalla tal como lo manda la API.
-- **Relaciones:** `GET /pacientes/:id/historias` responde `{ data, count }` mientras que
-  `/doctores/:id/historias` y `/historias-clinicas/:id/alertas` responden un array pelado.
-  El helper `lista()` normaliza los tres a un array.
+Concentra las llamadas HTTP. Cada respuesta se revisa antes de devolverse: si el estado
+no es correcto, se lanza el `message` que envía la API (que puede ser un texto o una
+lista de textos) y la sección lo muestra en pantalla.
 
-## Updates parciales
+Los endpoints de relación no comparten formato: `/pacientes/:id/historias` responde
+`{ data, count }` y los otros dos un array, así que el cliente los entrega siempre como
+array.
 
-Los DTOs de update del backend usan `PartialType`, así que al editar se manda **solo lo
-que cambió**, no la entidad completa.
+Las ediciones se envían como actualización parcial: solo los campos modificados.
 
 ## Integrantes
 
