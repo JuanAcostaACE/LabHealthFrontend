@@ -178,12 +178,12 @@ function HistoriasClinicas() {
             <form className="row g-2 align-items-end" onSubmit={crearAlerta}>
               <div className="col-md-3">
                 <label className="form-label">Resultado</label>
-                <input type="text" className="form-control" value={formAlerta.resultado}
+                <input type="text" maxLength={255} className="form-control" value={formAlerta.resultado}
                   onChange={(e) => setFormAlerta({ ...formAlerta, resultado: e.target.value })} required />
               </div>
               <div className="col-md-5">
                 <label className="form-label">Mensaje</label>
-                <input type="text" className="form-control" value={formAlerta.mensaje}
+                <input type="text" maxLength={500} className="form-control" value={formAlerta.mensaje}
                   onChange={(e) => setFormAlerta({ ...formAlerta, mensaje: e.target.value })} required />
               </div>
               <div className="col-md-2">
@@ -236,15 +236,15 @@ function HistoriasClinicas() {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Diagnóstico</label>
-                  <input type="text" className="form-control" name="diagnostico" value={form.diagnostico} onChange={handleChange} required />
+                  <input type="text" maxLength={500} className="form-control" name="diagnostico" value={form.diagnostico} onChange={handleChange} required />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Tratamiento</label>
-                  <input type="text" className="form-control" name="tratamiento" value={form.tratamiento} onChange={handleChange} required />
+                  <input type="text" maxLength={500} className="form-control" name="tratamiento" value={form.tratamiento} onChange={handleChange} required />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Observaciones</label>
-                  <textarea className="form-control" name="observaciones" value={form.observaciones} onChange={handleChange} rows="3"></textarea>
+                  <textarea maxLength={1000} className="form-control" name="observaciones" value={form.observaciones} onChange={handleChange} rows="3"></textarea>
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
