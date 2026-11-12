@@ -180,15 +180,18 @@ function Doctores() {
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label">Nombre completo</label>
-                  <input type="text" maxLength={255} className="form-control" name="nombre" value={form.nombre} onChange={handleChange} required />
+                  <input type="text" maxLength={255} pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ '\-.]{3,}" title="Solo letras, espacios, apóstrofos, puntos y guiones"
+                    className="form-control" name="nombre" value={form.nombre} onChange={handleChange} required />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Especialidad</label>
-                  <input type="text" maxLength={255} className="form-control" name="especialidad" value={form.especialidad} onChange={handleChange} required />
+                  <input type="text" maxLength={255} pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ '\-.]{3,}" title="Solo letras, espacios, apóstrofos, puntos y guiones"
+                    className="form-control" name="especialidad" value={form.especialidad} onChange={handleChange} required />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Licencia</label>
-                  <input type="text" maxLength={50} className="form-control" name="licencia" value={form.licencia} onChange={handleChange} required />
+                  <input type="text" maxLength={50} pattern="[A-Za-z0-9\-]{3,50}" title="Letras, números y guiones"
+                    className="form-control" name="licencia" value={form.licencia} onChange={handleChange} required />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Email</label>

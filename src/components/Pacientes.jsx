@@ -12,6 +12,9 @@ const VACIO = {
   antecedentesClinicos: '',
 };
 
+// 'sv' da YYYY-MM-DD en hora local; toISOString daría la fecha en UTC.
+const hoy = new Date().toLocaleDateString('sv');
+
 function Pacientes() {
   const [pacientes, setPacientes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -184,11 +187,13 @@ function Pacientes() {
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label">Nombre completo</label>
-                  <input type="text" maxLength={255} className="form-control" name="nombre" value={form.nombre} onChange={handleChange} required />
+                  <input type="text" maxLength={255} pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ '\-.]{3,}" title="Solo letras, espacios, apóstrofos, puntos y guiones"
+                    className="form-control" name="nombre" value={form.nombre} onChange={handleChange} required />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Documento</label>
-                  <input type="text" maxLength={50} className="form-control" name="documento" value={form.documento} onChange={handleChange} required />
+                  <input type="text" inputMode="numeric" pattern="\d{5,20}" title="Solo dígitos, entre 5 y 20" maxLength={20}
+                    className="form-control" name="documento" value={form.documento} onChange={handleChange} required />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Teléfono</label>
@@ -201,7 +206,7 @@ function Pacientes() {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Fecha de nacimiento</label>
-                  <input type="date" className="form-control" name="fechaNacimiento" value={form.fechaNacimiento} onChange={handleChange} required />
+                  <input type="date" max={hoy} className="form-control" name="fechaNacimiento" value={form.fechaNacimiento} onChange={handleChange} required />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Tipo de sangre</label>
@@ -219,7 +224,7 @@ function Pacientes() {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Antecedentes clínicos</label>
-                  <textarea maxLength={1000} className="form-control" name="antecedentesClinicos" value={form.antecedentesClinicos} onChange={handleChange} rows="3" required></textarea>
+                  <textarea minLength={3} maxLength={1000} className="form-control" name="antecedentesClinicos" value={form.antecedentesClinicos} onChange={handleChange} rows="3" required></textarea>
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
