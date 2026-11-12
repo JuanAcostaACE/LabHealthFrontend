@@ -18,6 +18,7 @@ function Doctores() {
   const [original, setOriginal] = useState({});
   const [historias, setHistorias] = useState(null);
   const [error, setError] = useState('');
+  const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
     cargarDoctores();
@@ -41,6 +42,8 @@ function Doctores() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (guardando) return;
+    setGuardando(true);
     try {
       if (editingId) {
         // PartialType: solo mandamos lo que cambió
@@ -55,6 +58,8 @@ function Doctores() {
       await cargarDoctores();
     } catch (err) {
       setError(err.message);
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -195,8 +200,8 @@ function Doctores() {
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
                     Cancelar
                   </button>
-                  <button type="submit" className="btn btn-primary">
-                    Guardar
+                  <button type="submit" className="btn btn-primary" disabled={guardando}>
+                    {guardando ? 'Guardando...' : 'Guardar'}
                   </button>
                 </div>
               </form>

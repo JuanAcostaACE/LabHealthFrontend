@@ -22,6 +22,7 @@ function HistoriasClinicas() {
   const [alertas, setAlertas] = useState(null);
   const [formAlerta, setFormAlerta] = useState({ resultado: '', mensaje: '', nivel: 'Bajo' });
   const [error, setError] = useState('');
+  const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
     cargarTodo();
@@ -51,6 +52,8 @@ function HistoriasClinicas() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (guardando) return;
+    setGuardando(true);
     try {
       const datos = {
         ...form,
@@ -70,6 +73,8 @@ function HistoriasClinicas() {
       await cargarTodo();
     } catch (err) {
       setError(err.message);
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -98,12 +103,16 @@ function HistoriasClinicas() {
 
   const crearAlerta = async (e) => {
     e.preventDefault();
+    if (guardando) return;
+    setGuardando(true);
     try {
       await api.createAlerta({ ...formAlerta, historiaId: alertas.historiaId });
       setAlertas({ historiaId: alertas.historiaId, items: await api.getAlertasDeHistoria(alertas.historiaId) });
       setFormAlerta({ resultado: '', mensaje: '', nivel: 'Bajo' });
     } catch (err) {
       setError(err.message);
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -206,7 +215,7 @@ function HistoriasClinicas() {
                 </select>
               </div>
               <div className="col-md-2">
-                <button type="submit" className="btn btn-primary w-100">Agregar alerta</button>
+                <button type="submit" className="btn btn-primary w-100" disabled={guardando}>Agregar alerta</button>
               </div>
             </form>
           </div>
@@ -262,8 +271,8 @@ function HistoriasClinicas() {
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
                     Cancelar
                   </button>
-                  <button type="submit" className="btn btn-primary">
-                    Guardar
+                  <button type="submit" className="btn btn-primary" disabled={guardando}>
+                    {guardando ? 'Guardando...' : 'Guardar'}
                   </button>
                 </div>
               </form>
