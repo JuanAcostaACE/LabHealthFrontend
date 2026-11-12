@@ -2,16 +2,18 @@ import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
 import { cerrarModal } from '../modal.js';
 
+const VACIO = {
+  nombre: '',
+  especialidad: '',
+  licencia: '',
+  email: '',
+  telefono: '',
+};
+
 function Doctores() {
   const [doctores, setDoctores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({
-    nombre: '',
-    especialidad: '',
-    licencia: '',
-    email: '',
-    telefono: '',
-  });
+  const [form, setForm] = useState(VACIO);
   const [editingId, setEditingId] = useState(null);
   const [original, setOriginal] = useState({});
   const [historias, setHistorias] = useState(null);
@@ -48,12 +50,19 @@ function Doctores() {
       } else {
         await api.createDoctor(form);
       }
-      setForm({ nombre: '', especialidad: '', licencia: '', email: '', telefono: '' });
+      setForm(VACIO);
       cerrarModal('modalDoctor');
       await cargarDoctores();
     } catch (err) {
       setError(err.message);
     }
+  };
+
+  // Si se canceló una edición, editingId y el form siguen cargados: hay que limpiarlos.
+  const nuevo = () => {
+    setEditingId(null);
+    setForm(VACIO);
+    setError('');
   };
 
   const editar = (d) => {
@@ -85,7 +94,7 @@ function Doctores() {
     <div className="seccion-doctores">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="h3 mb-0">Doctores</h1>
-        <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDoctor">
+        <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDoctor" onClick={nuevo}>
           Nuevo doctor
         </button>
       </div>

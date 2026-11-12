@@ -2,19 +2,21 @@ import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
 import { cerrarModal } from '../modal.js';
 
+const VACIO = {
+  pacienteId: '',
+  doctorId: '',
+  fecha: '',
+  diagnostico: '',
+  tratamiento: '',
+  observaciones: '',
+};
+
 function HistoriasClinicas() {
   const [historias, setHistorias] = useState([]);
   const [pacientes, setPacientes] = useState([]);
   const [doctores, setDoctores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({
-    pacienteId: '',
-    doctorId: '',
-    fecha: '',
-    diagnostico: '',
-    tratamiento: '',
-    observaciones: '',
-  });
+  const [form, setForm] = useState(VACIO);
   const [editingId, setEditingId] = useState(null);
   const [original, setOriginal] = useState({});
   const [alertas, setAlertas] = useState(null);
@@ -63,12 +65,19 @@ function HistoriasClinicas() {
       } else {
         await api.createHistoria(datos);
       }
-      setForm({ pacienteId: '', doctorId: '', fecha: '', diagnostico: '', tratamiento: '', observaciones: '' });
+      setForm(VACIO);
       cerrarModal('modalHistoria');
       await cargarTodo();
     } catch (err) {
       setError(err.message);
     }
+  };
+
+  // Si se canceló una edición, editingId y el form siguen cargados: hay que limpiarlos.
+  const nuevo = () => {
+    setEditingId(null);
+    setForm(VACIO);
+    setError('');
   };
 
   const editar = (h) => {
@@ -112,7 +121,7 @@ function HistoriasClinicas() {
     <div className="seccion-historias">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="h3 mb-0">Historias Clínicas</h1>
-        <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalHistoria">
+        <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalHistoria" onClick={nuevo}>
           Nueva historia clínica
         </button>
       </div>
