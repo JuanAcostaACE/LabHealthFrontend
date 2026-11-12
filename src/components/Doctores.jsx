@@ -74,7 +74,7 @@ function Doctores() {
 
   const verHistorias = async (d) => {
     try {
-      setHistorias({ nombre: d.nombre, items: await api.getHistoriasDeDoctor(d.id) });
+      setHistorias({ id: d.id, nombre: d.nombre, items: await api.getHistoriasDeDoctor(d.id) });
     } catch (err) {
       setError(err.message);
     }
@@ -84,6 +84,7 @@ function Doctores() {
     if (!confirm('¿Eliminar este doctor?')) return;
     try {
       await api.deleteDoctor(id);
+      if (historias?.id === id) setHistorias(null);
       await cargarDoctores();
     } catch (err) {
       setError(err.message);

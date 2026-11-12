@@ -111,6 +111,7 @@ function HistoriasClinicas() {
     if (!confirm('¿Eliminar esta historia clínica?')) return;
     try {
       await api.deleteHistoria(id);
+      if (alertas?.historiaId === id) setAlertas(null);
       await cargarTodo();
     } catch (err) {
       setError(err.message);
