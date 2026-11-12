@@ -1,0 +1,161 @@
+import { useState, useEffect } from 'react';
+import { api } from '../services/api.js';
+
+function Doctores() {
+  const [doctores, setDoctores] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({
+    nombre: '',
+    especialidad: '',
+    licencia: '',
+    email: '',
+    telefono: '',
+  });
+  const [editingId, setEditingId] = useState(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    cargarDoctores();
+  }, []);
+
+  const cargarDoctores = async () => {
+    try {
+      const data = await api.getDoctores();
+      setDoctores(data);
+    } catch (err) {
+      setError('Error al cargar doctores');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingId) {
+        await api.updateDoctor(editingId, form);
+        setEditingId(null);
+      } else {
+        await api.createDoctor(form);
+      }
+      setForm({ nombre: '', especialidad: '', licencia: '', email: '', telefono: '' });
+      await cargarDoctores();
+    } catch (err) {
+      setError('Error al guardar doctor');
+    }
+  };
+
+  const editar = (d) => {
+    setEditingId(d.id);
+    setForm({ ...d });
+  };
+
+  const eliminar = async (id) => {
+    if (!confirm('¿Eliminar este doctor?')) return;
+    try {
+      await api.deleteDoctor(id);
+      await cargarDoctores();
+    } catch (err) {
+      setError('Error al eliminar doctor');
+    }
+  };
+
+  return (
+    <div className="seccion-doctores">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1 className="h3 mb-0">Doctores</h1>
+        <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDoctor">
+          Nuevo doctor
+        </button>
+      </div>
+
+      {error && <div className="alert alert-danger">{error}</div>}
+
+      <div className="table-responsive">
+        <table className="table table-striped table-hover align-middle">
+          <thead className="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Especialidad</th>
+              <th>Licencia</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan="7" className="text-center">Cargando...</td></tr>
+            ) : (
+              doctores.map(d => (
+                <tr key={d.id}>
+                  <td>{d.id}</td>
+                  <td>{d.nombre}</td>
+                  <td>{d.especialidad}</td>
+                  <td>{d.licencia}</td>
+                  <td>{d.email}</td>
+                  <td>{d.telefono}</td>
+                  <td>
+                    <button className="btn btn-sm btn-outline-primary" onClick={() => editar(d)}>Editar</button>
+                    <button className="btn btn-sm btn-danger" onClick={() => eliminar(d.id)}>Eliminar</button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="modal fade" id="modalDoctor" tabIndex="-1" aria-hidden="true">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">{editingId ? 'Editar doctor' : 'Nuevo doctor'}</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div className="modal-body">
+              <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                  <label className="form-label">Nombre completo</label>
+                  <input type="text" className="form-control" name="nombre" value={form.nombre} onChange={handleChange} required />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Especialidad</label>
+                  <input type="text" className="form-control" name="especialidad" value={form.especialidad} onChange={handleChange} required />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Licencia</label>
+                  <input type="text" className="form-control" name="licencia" value={form.licencia} onChange={handleChange} required />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Email</label>
+                  <input type="email" className="form-control" name="email" value={form.email} onChange={handleChange} required />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Teléfono</label>
+                  <input type="text" className="form-control" name="telefono" value={form.telefono} onChange={handleChange} required />
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    Guardar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Doctores;
