@@ -170,6 +170,8 @@ function Pacientes() {
               <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div className="modal-body">
+              {/* La alerta de la página queda tapada por el backdrop del modal */}
+              {error && <div className="alert alert-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label">Nombre completo</label>
