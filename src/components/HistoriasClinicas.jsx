@@ -133,7 +133,7 @@ function HistoriasClinicas() {
 
   return (
     <div className="seccion-historias">
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-4">
         <h1 className="h3 mb-0">Historias Clínicas</h1>
         <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalHistoria" onClick={nuevo}>
           Nueva historia clínica
@@ -152,7 +152,7 @@ function HistoriasClinicas() {
               <th>Fecha</th>
               <th>Diagnóstico</th>
               <th>Tratamiento</th>
-              <th>Acciones</th>
+              <th className="text-end text-nowrap">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -169,10 +169,12 @@ function HistoriasClinicas() {
                   <td>{h.fecha}</td>
                   <td>{h.diagnostico}</td>
                   <td>{h.tratamiento}</td>
-                  <td>
-                    <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => verAlertas(h)}>Alertas</button>
-                    <button className="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#modalHistoria" onClick={() => editar(h)}>Editar</button>
-                    <button className="btn btn-sm btn-danger" onClick={() => eliminar(h.id)}>Eliminar</button>
+                  <td className="text-end">
+                    <div className="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                      <button type="button" className="btn btn-outline-secondary" onClick={() => verAlertas(h)}>Alertas</button>
+                      <button type="button" className="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalHistoria" onClick={() => editar(h)}>Editar</button>
+                      <button type="button" className="btn btn-danger" onClick={() => eliminar(h.id)}>Eliminar</button>
+                    </div>
                   </td>
                 </tr>
               ))
