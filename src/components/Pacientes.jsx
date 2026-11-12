@@ -211,7 +211,7 @@ function Pacientes() {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Antecedentes clínicos</label>
-                  <textarea maxLength={1000} className="form-control" name="antecedentesClinicos" value={form.antecedentesClinicos} onChange={handleChange} rows="3"></textarea>
+                  <textarea maxLength={1000} className="form-control" name="antecedentesClinicos" value={form.antecedentesClinicos} onChange={handleChange} rows="3" required></textarea>
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">

@@ -256,7 +256,7 @@ function HistoriasClinicas() {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Observaciones</label>
-                  <textarea maxLength={1000} className="form-control" name="observaciones" value={form.observaciones} onChange={handleChange} rows="3"></textarea>
+                  <textarea maxLength={1000} className="form-control" name="observaciones" value={form.observaciones} onChange={handleChange} rows="3" required></textarea>
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
