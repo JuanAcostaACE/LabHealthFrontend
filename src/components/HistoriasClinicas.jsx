@@ -101,8 +101,8 @@ function HistoriasClinicas() {
               historias.map(h => (
                 <tr key={h.id}>
                   <td>{h.id}</td>
-                  <td>{h.paciente.nombre ?? h.pacienteId}</td>
-                  <td>{h.doctor.nombre ?? h.doctorId}</td>
+                  <td>{h.paciente?.nombre ?? h.pacienteId}</td>
+                  <td>{h.doctor?.nombre ?? h.doctorId}</td>
                   <td>{h.fecha}</td>
                   <td>{h.diagnostico}</td>
                   <td>{h.tratamiento}</td>
