@@ -35,7 +35,7 @@ function Alertas() {
 
   return (
     <div className="seccion-alertas">
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-4">
         <h1 className="h3 mb-0">Alertas de anormalidad</h1>
       </div>
 
@@ -52,7 +52,7 @@ function Alertas() {
               <th>Resultado</th>
               <th>Mensaje</th>
               <th>Historia</th>
-              <th>Acciones</th>
+              <th className="text-end text-nowrap">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -68,8 +68,10 @@ function Alertas() {
                   <td>{a.resultado}</td>
                   <td>{a.mensaje}</td>
                   <td>#{a.historiaId}</td>
-                  <td>
-                    <button className="btn btn-sm btn-danger" onClick={() => eliminar(a.id)}>Eliminar</button>
+                  <td className="text-end">
+                    <div className="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                      <button type="button" className="btn btn-danger" onClick={() => eliminar(a.id)}>Eliminar</button>
+                    </div>
                   </td>
                 </tr>
               ))

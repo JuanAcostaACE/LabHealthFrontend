@@ -104,7 +104,7 @@ function Pacientes() {
 
   return (
     <div className="seccion-pacientes">
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-4">
         <h1 className="h3 mb-0">Pacientes</h1>
         <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalPaciente" onClick={nuevo}>
           Nuevo paciente
@@ -124,7 +124,7 @@ function Pacientes() {
               <th>Email</th>
               <th>Fecha Nacimiento</th>
               <th>Tipo Sangre</th>
-              <th>Acciones</th>
+              <th className="text-end text-nowrap">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -142,10 +142,12 @@ function Pacientes() {
                   <td>{p.email}</td>
                   <td>{p.fechaNacimiento}</td>
                   <td>{p.tipoSangre}</td>
-                  <td>
-                    <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => verHistorias(p)}>Historias</button>
-                    <button className="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#modalPaciente" onClick={() => editar(p)}>Editar</button>
-                    <button className="btn btn-sm btn-danger" onClick={() => eliminar(p.id)}>Eliminar</button>
+                  <td className="text-end">
+                    <div className="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                      <button type="button" className="btn btn-outline-secondary" onClick={() => verHistorias(p)}>Historias</button>
+                      <button type="button" className="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalPaciente" onClick={() => editar(p)}>Editar</button>
+                      <button type="button" className="btn btn-danger" onClick={() => eliminar(p.id)}>Eliminar</button>
+                    </div>
                   </td>
                 </tr>
               ))
