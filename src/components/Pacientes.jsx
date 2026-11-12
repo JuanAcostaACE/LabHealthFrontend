@@ -172,7 +172,8 @@ function Pacientes() {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Teléfono</label>
-                  <input type="text" className="form-control" name="telefono" value={form.telefono} onChange={handleChange} required />
+                  <input type="tel" inputMode="numeric" pattern="\d{7,15}" title="Solo dígitos, entre 7 y 15"
+                    className="form-control" name="telefono" value={form.telefono} onChange={handleChange} required />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Email</label>
