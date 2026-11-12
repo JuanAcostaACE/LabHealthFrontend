@@ -1,3 +1,4 @@
+// LabHealt Frontend - Componente principal
 import { useState } from 'react';
 import Navbar from './components/Navbar.jsx';
 import Pacientes from './components/Pacientes.jsx';
@@ -20,3 +21,4 @@ function App() {
 }
 
 export default App;
+
