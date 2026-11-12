@@ -13,6 +13,7 @@ function Alertas() {
   const cargarAlertas = async () => {
     try {
       setAlertas(await api.getAlertas());
+      setError('');
     } catch (err) {
       setError(err.message);
     } finally {

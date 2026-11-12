@@ -28,6 +28,7 @@ function Doctores() {
     try {
       const data = await api.getDoctores();
       setDoctores(data);
+      setError('');
     } catch (err) {
       setError(err.message);
     } finally {

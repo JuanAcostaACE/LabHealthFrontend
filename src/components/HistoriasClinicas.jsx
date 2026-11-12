@@ -38,6 +38,7 @@ function HistoriasClinicas() {
       setHistorias(hRes);
       setPacientes(pRes);
       setDoctores(dRes);
+      setError('');
     } catch (err) {
       setError(err.message);
     } finally {

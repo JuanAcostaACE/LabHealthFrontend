@@ -30,6 +30,7 @@ function Pacientes() {
     try {
       const data = await api.getPacientes();
       setPacientes(data);
+      setError('');
     } catch (err) {
       setError(err.message);
     } finally {
