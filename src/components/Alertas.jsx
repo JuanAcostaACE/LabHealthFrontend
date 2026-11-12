@@ -38,10 +38,7 @@ function Alertas() {
         <h1 className="h3 mb-0">Alertas de anormalidad</h1>
       </div>
 
-      <div className="alert alert-info">
-        Las alertas se crean desde una historia clínica (el backend exige <code>historiaId</code>):
-        ve a <strong>Historias Clínicas</strong> y usa el botón <strong>Alertas</strong> de la fila.
-      </div>
+      <div className="alert alert-info">Las alertas se crean desde una historia clínica.</div>
 
       {error && <div className="alert alert-danger">{error}</div>}
 
