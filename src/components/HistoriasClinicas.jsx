@@ -2,24 +2,27 @@ import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
 import { cerrarModal } from '../modal.js';
 
+const VACIO = {
+  pacienteId: '',
+  doctorId: '',
+  fecha: '',
+  diagnostico: '',
+  tratamiento: '',
+  observaciones: '',
+};
+
 function HistoriasClinicas() {
   const [historias, setHistorias] = useState([]);
   const [pacientes, setPacientes] = useState([]);
   const [doctores, setDoctores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({
-    pacienteId: '',
-    doctorId: '',
-    fecha: '',
-    diagnostico: '',
-    tratamiento: '',
-    observaciones: '',
-  });
+  const [form, setForm] = useState(VACIO);
   const [editingId, setEditingId] = useState(null);
   const [original, setOriginal] = useState({});
   const [alertas, setAlertas] = useState(null);
   const [formAlerta, setFormAlerta] = useState({ resultado: '', mensaje: '', nivel: 'Bajo' });
   const [error, setError] = useState('');
+  const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
     cargarTodo();
@@ -35,6 +38,7 @@ function HistoriasClinicas() {
       setHistorias(hRes);
       setPacientes(pRes);
       setDoctores(dRes);
+      setError('');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -49,6 +53,8 @@ function HistoriasClinicas() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (guardando) return;
+    setGuardando(true);
     try {
       const datos = {
         ...form,
@@ -63,12 +69,21 @@ function HistoriasClinicas() {
       } else {
         await api.createHistoria(datos);
       }
-      setForm({ pacienteId: '', doctorId: '', fecha: '', diagnostico: '', tratamiento: '', observaciones: '' });
+      setForm(VACIO);
       cerrarModal('modalHistoria');
       await cargarTodo();
     } catch (err) {
       setError(err.message);
+    } finally {
+      setGuardando(false);
     }
+  };
+
+  // Si se canceló una edición, editingId y el form siguen cargados: hay que limpiarlos.
+  const nuevo = () => {
+    setEditingId(null);
+    setForm(VACIO);
+    setError('');
   };
 
   const editar = (h) => {
@@ -89,12 +104,16 @@ function HistoriasClinicas() {
 
   const crearAlerta = async (e) => {
     e.preventDefault();
+    if (guardando) return;
+    setGuardando(true);
     try {
       await api.createAlerta({ ...formAlerta, historiaId: alertas.historiaId });
       setAlertas({ historiaId: alertas.historiaId, items: await api.getAlertasDeHistoria(alertas.historiaId) });
       setFormAlerta({ resultado: '', mensaje: '', nivel: 'Bajo' });
     } catch (err) {
       setError(err.message);
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -102,6 +121,7 @@ function HistoriasClinicas() {
     if (!confirm('¿Eliminar esta historia clínica?')) return;
     try {
       await api.deleteHistoria(id);
+      if (alertas?.historiaId === id) setAlertas(null);
       await cargarTodo();
     } catch (err) {
       setError(err.message);
@@ -112,7 +132,7 @@ function HistoriasClinicas() {
     <div className="seccion-historias">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="h3 mb-0">Historias Clínicas</h1>
-        <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalHistoria">
+        <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalHistoria" onClick={nuevo}>
           Nueva historia clínica
         </button>
       </div>
@@ -135,6 +155,8 @@ function HistoriasClinicas() {
           <tbody>
             {loading ? (
               <tr><td colSpan="7" className="text-center">Cargando...</td></tr>
+            ) : historias.length === 0 ? (
+              <tr><td colSpan="7" className="text-center">No hay historias clínicas registradas</td></tr>
             ) : (
               historias.map(h => (
                 <tr key={h.id}>
@@ -196,7 +218,7 @@ function HistoriasClinicas() {
                 </select>
               </div>
               <div className="col-md-2">
-                <button type="submit" className="btn btn-primary w-100">Agregar alerta</button>
+                <button type="submit" className="btn btn-primary w-100" disabled={guardando}>Agregar alerta</button>
               </div>
             </form>
           </div>
@@ -211,6 +233,8 @@ function HistoriasClinicas() {
               <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div className="modal-body">
+              {/* La alerta de la página queda tapada por el backdrop del modal */}
+              {error && <div className="alert alert-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label">Paciente</label>
@@ -244,14 +268,14 @@ function HistoriasClinicas() {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Observaciones</label>
-                  <textarea maxLength={1000} className="form-control" name="observaciones" value={form.observaciones} onChange={handleChange} rows="3"></textarea>
+                  <textarea maxLength={1000} className="form-control" name="observaciones" value={form.observaciones} onChange={handleChange} rows="3" required></textarea>
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
                     Cancelar
                   </button>
-                  <button type="submit" className="btn btn-primary">
-                    Guardar
+                  <button type="submit" className="btn btn-primary" disabled={guardando}>
+                    {guardando ? 'Guardando...' : 'Guardar'}
                   </button>
                 </div>
               </form>

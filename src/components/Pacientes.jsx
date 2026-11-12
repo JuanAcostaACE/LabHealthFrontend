@@ -2,22 +2,25 @@ import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
 import { cerrarModal } from '../modal.js';
 
+const VACIO = {
+  nombre: '',
+  documento: '',
+  telefono: '',
+  email: '',
+  fechaNacimiento: '',
+  tipoSangre: '',
+  antecedentesClinicos: '',
+};
+
 function Pacientes() {
   const [pacientes, setPacientes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({
-    nombre: '',
-    documento: '',
-    telefono: '',
-    email: '',
-    fechaNacimiento: '',
-    tipoSangre: '',
-    antecedentesClinicos: '',
-  });
+  const [form, setForm] = useState(VACIO);
   const [editingId, setEditingId] = useState(null);
   const [original, setOriginal] = useState({});
   const [historias, setHistorias] = useState(null);
   const [error, setError] = useState('');
+  const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
     cargarPacientes();
@@ -27,6 +30,7 @@ function Pacientes() {
     try {
       const data = await api.getPacientes();
       setPacientes(data);
+      setError('');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -41,6 +45,8 @@ function Pacientes() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (guardando) return;
+    setGuardando(true);
     try {
       if (editingId) {
         // PartialType: solo mandamos lo que cambió
@@ -50,12 +56,21 @@ function Pacientes() {
       } else {
         await api.createPaciente(form);
       }
-      setForm({ nombre: '', documento: '', telefono: '', email: '', fechaNacimiento: '', tipoSangre: '', antecedentesClinicos: '' });
+      setForm(VACIO);
       cerrarModal('modalPaciente');
       await cargarPacientes();
     } catch (err) {
       setError(err.message);
+    } finally {
+      setGuardando(false);
     }
+  };
+
+  // Si se canceló una edición, editingId y el form siguen cargados: hay que limpiarlos.
+  const nuevo = () => {
+    setEditingId(null);
+    setForm(VACIO);
+    setError('');
   };
 
   const editar = (p) => {
@@ -67,7 +82,7 @@ function Pacientes() {
 
   const verHistorias = async (p) => {
     try {
-      setHistorias({ nombre: p.nombre, items: await api.getHistoriasDePaciente(p.id) });
+      setHistorias({ id: p.id, nombre: p.nombre, items: await api.getHistoriasDePaciente(p.id) });
     } catch (err) {
       setError(err.message);
     }
@@ -77,6 +92,7 @@ function Pacientes() {
     if (!confirm('¿Eliminar este paciente?')) return;
     try {
       await api.deletePaciente(id);
+      if (historias?.id === id) setHistorias(null);
       await cargarPacientes();
     } catch (err) {
       setError(err.message);
@@ -87,7 +103,7 @@ function Pacientes() {
     <div className="seccion-pacientes">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="h3 mb-0">Pacientes</h1>
-        <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalPaciente">
+        <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalPaciente" onClick={nuevo}>
           Nuevo paciente
         </button>
       </div>
@@ -111,6 +127,8 @@ function Pacientes() {
           <tbody>
             {loading ? (
               <tr><td colSpan="8" className="text-center">Cargando...</td></tr>
+            ) : pacientes.length === 0 ? (
+              <tr><td colSpan="8" className="text-center">No hay pacientes registrados</td></tr>
             ) : (
               pacientes.map(p => (
                 <tr key={p.id}>
@@ -161,6 +179,8 @@ function Pacientes() {
               <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div className="modal-body">
+              {/* La alerta de la página queda tapada por el backdrop del modal */}
+              {error && <div className="alert alert-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label">Nombre completo</label>
@@ -199,14 +219,14 @@ function Pacientes() {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Antecedentes clínicos</label>
-                  <textarea maxLength={1000} className="form-control" name="antecedentesClinicos" value={form.antecedentesClinicos} onChange={handleChange} rows="3"></textarea>
+                  <textarea maxLength={1000} className="form-control" name="antecedentesClinicos" value={form.antecedentesClinicos} onChange={handleChange} rows="3" required></textarea>
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
                     Cancelar
                   </button>
-                  <button type="submit" className="btn btn-primary">
-                    Guardar
+                  <button type="submit" className="btn btn-primary" disabled={guardando}>
+                    {guardando ? 'Guardando...' : 'Guardar'}
                   </button>
                 </div>
               </form>

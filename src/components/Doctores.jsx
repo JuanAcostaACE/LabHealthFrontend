@@ -2,20 +2,23 @@ import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
 import { cerrarModal } from '../modal.js';
 
+const VACIO = {
+  nombre: '',
+  especialidad: '',
+  licencia: '',
+  email: '',
+  telefono: '',
+};
+
 function Doctores() {
   const [doctores, setDoctores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({
-    nombre: '',
-    especialidad: '',
-    licencia: '',
-    email: '',
-    telefono: '',
-  });
+  const [form, setForm] = useState(VACIO);
   const [editingId, setEditingId] = useState(null);
   const [original, setOriginal] = useState({});
   const [historias, setHistorias] = useState(null);
   const [error, setError] = useState('');
+  const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
     cargarDoctores();
@@ -25,6 +28,7 @@ function Doctores() {
     try {
       const data = await api.getDoctores();
       setDoctores(data);
+      setError('');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -39,6 +43,8 @@ function Doctores() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (guardando) return;
+    setGuardando(true);
     try {
       if (editingId) {
         // PartialType: solo mandamos lo que cambió
@@ -48,12 +54,21 @@ function Doctores() {
       } else {
         await api.createDoctor(form);
       }
-      setForm({ nombre: '', especialidad: '', licencia: '', email: '', telefono: '' });
+      setForm(VACIO);
       cerrarModal('modalDoctor');
       await cargarDoctores();
     } catch (err) {
       setError(err.message);
+    } finally {
+      setGuardando(false);
     }
+  };
+
+  // Si se canceló una edición, editingId y el form siguen cargados: hay que limpiarlos.
+  const nuevo = () => {
+    setEditingId(null);
+    setForm(VACIO);
+    setError('');
   };
 
   const editar = (d) => {
@@ -65,7 +80,7 @@ function Doctores() {
 
   const verHistorias = async (d) => {
     try {
-      setHistorias({ nombre: d.nombre, items: await api.getHistoriasDeDoctor(d.id) });
+      setHistorias({ id: d.id, nombre: d.nombre, items: await api.getHistoriasDeDoctor(d.id) });
     } catch (err) {
       setError(err.message);
     }
@@ -75,6 +90,7 @@ function Doctores() {
     if (!confirm('¿Eliminar este doctor?')) return;
     try {
       await api.deleteDoctor(id);
+      if (historias?.id === id) setHistorias(null);
       await cargarDoctores();
     } catch (err) {
       setError(err.message);
@@ -85,7 +101,7 @@ function Doctores() {
     <div className="seccion-doctores">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="h3 mb-0">Doctores</h1>
-        <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDoctor">
+        <button className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDoctor" onClick={nuevo}>
           Nuevo doctor
         </button>
       </div>
@@ -108,6 +124,8 @@ function Doctores() {
           <tbody>
             {loading ? (
               <tr><td colSpan="7" className="text-center">Cargando...</td></tr>
+            ) : doctores.length === 0 ? (
+              <tr><td colSpan="7" className="text-center">No hay doctores registrados</td></tr>
             ) : (
               doctores.map(d => (
                 <tr key={d.id}>
@@ -157,6 +175,8 @@ function Doctores() {
               <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div className="modal-body">
+              {/* La alerta de la página queda tapada por el backdrop del modal */}
+              {error && <div className="alert alert-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label">Nombre completo</label>
@@ -183,8 +203,8 @@ function Doctores() {
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
                     Cancelar
                   </button>
-                  <button type="submit" className="btn btn-primary">
-                    Guardar
+                  <button type="submit" className="btn btn-primary" disabled={guardando}>
+                    {guardando ? 'Guardando...' : 'Guardar'}
                   </button>
                 </div>
               </form>
