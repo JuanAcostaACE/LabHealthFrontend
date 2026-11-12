@@ -155,6 +155,8 @@ function HistoriasClinicas() {
           <tbody>
             {loading ? (
               <tr><td colSpan="7" className="text-center">Cargando...</td></tr>
+            ) : historias.length === 0 ? (
+              <tr><td colSpan="7" className="text-center">No hay historias clínicas registradas</td></tr>
             ) : (
               historias.map(h => (
                 <tr key={h.id}>

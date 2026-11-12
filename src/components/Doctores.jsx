@@ -124,6 +124,8 @@ function Doctores() {
           <tbody>
             {loading ? (
               <tr><td colSpan="7" className="text-center">Cargando...</td></tr>
+            ) : doctores.length === 0 ? (
+              <tr><td colSpan="7" className="text-center">No hay doctores registrados</td></tr>
             ) : (
               doctores.map(d => (
                 <tr key={d.id}>

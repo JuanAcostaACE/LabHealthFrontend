@@ -127,6 +127,8 @@ function Pacientes() {
           <tbody>
             {loading ? (
               <tr><td colSpan="8" className="text-center">Cargando...</td></tr>
+            ) : pacientes.length === 0 ? (
+              <tr><td colSpan="8" className="text-center">No hay pacientes registrados</td></tr>
             ) : (
               pacientes.map(p => (
                 <tr key={p.id}>
