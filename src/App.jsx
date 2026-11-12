@@ -10,7 +10,7 @@ function App() {
 
   return (
     <div className="app">
-      <Navbar setSeccion={setSeccion} />
+      <Navbar seccion={seccion} setSeccion={setSeccion} />
       <main className="container mt-4">
         {seccion === 'pacientes' && <Pacientes />}
         {seccion === 'doctores' && <Doctores />}
