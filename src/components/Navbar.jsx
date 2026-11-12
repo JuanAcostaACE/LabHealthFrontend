@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function Navbar({ setSeccion }) {
+function Navbar({ seccion, setSeccion }) {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
