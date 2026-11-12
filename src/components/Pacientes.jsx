@@ -164,11 +164,11 @@ function Pacientes() {
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label">Nombre completo</label>
-                  <input type="text" className="form-control" name="nombre" value={form.nombre} onChange={handleChange} required />
+                  <input type="text" maxLength={255} className="form-control" name="nombre" value={form.nombre} onChange={handleChange} required />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Documento</label>
-                  <input type="text" className="form-control" name="documento" value={form.documento} onChange={handleChange} required />
+                  <input type="text" maxLength={50} className="form-control" name="documento" value={form.documento} onChange={handleChange} required />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Teléfono</label>
@@ -177,7 +177,7 @@ function Pacientes() {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Email</label>
-                  <input type="email" className="form-control" name="email" value={form.email} onChange={handleChange} required />
+                  <input type="email" maxLength={255} className="form-control" name="email" value={form.email} onChange={handleChange} required />
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Fecha de nacimiento</label>
@@ -199,7 +199,7 @@ function Pacientes() {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Antecedentes clínicos</label>
-                  <textarea className="form-control" name="antecedentesClinicos" value={form.antecedentesClinicos} onChange={handleChange} rows="3"></textarea>
+                  <textarea maxLength={1000} className="form-control" name="antecedentesClinicos" value={form.antecedentesClinicos} onChange={handleChange} rows="3"></textarea>
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
